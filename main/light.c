@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <sys/time.h>
+#include <math.h>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -26,23 +27,23 @@
 
 #include "kv.h"
 
-#define LEDC_LS_CH0_GPIO       (18)
+#define LEDC_LS_CH0_GPIO       (19)
 #define LEDC_LS_CH0_CHANNEL    LEDC_CHANNEL_0
-#define LEDC_LS_CH1_GPIO       (19)
+#define LEDC_LS_CH1_GPIO       (18)
 #define LEDC_LS_CH1_CHANNEL    LEDC_CHANNEL_1
-#define LEDC_LS_CH2_GPIO       (22)
+#define LEDC_LS_CH2_GPIO       (5)
 #define LEDC_LS_CH2_CHANNEL    LEDC_CHANNEL_2
-#define LEDC_LS_CH3_GPIO       (4)
+#define LEDC_LS_CH3_GPIO       (33)
 #define LEDC_LS_CH3_CHANNEL    LEDC_CHANNEL_3
-#define LEDC_LS_CH4_GPIO       (5)
+#define LEDC_LS_CH4_GPIO       (25)
 #define LEDC_LS_CH4_CHANNEL    LEDC_CHANNEL_4
-#define LEDC_LS_CH5_GPIO       (0)
+#define LEDC_LS_CH5_GPIO       (26)
 #define LEDC_LS_CH5_CHANNEL    LEDC_CHANNEL_5
 
-#define LEDC_TEST_CH_NUM       (6)
-#define LED_MIN_DUTY         (550)
-#define LED_MAX_DUTY         (8191)
-#define LEDC_TEST_FADE_TIME    (1000)
+#define LEDC_CH_NUM            (6)
+#define LED_MIN_DUTY           (550)
+#define LED_MAX_DUTY           (8191)
+#define LEDC_FADE_TIME         (1000)
 
 typedef struct led_config {
   ledc_channel_t  channel;
@@ -53,7 +54,7 @@ typedef struct led_config {
 
 void fade_and_wait_led(ledc_channel_config_t ledc_channel, int duty) {
   ledc_set_fade_with_time(ledc_channel.speed_mode,
-      ledc_channel.channel, duty, LEDC_TEST_FADE_TIME);
+      ledc_channel.channel, duty, LEDC_FADE_TIME);
   ledc_fade_start(ledc_channel.speed_mode,
       ledc_channel.channel, LEDC_FADE_WAIT_DONE);
 }
@@ -64,19 +65,22 @@ int get_duty_for_time() {
   time(&now);
   localtime_r(&now, &timeinfo); 
 
-  double day_adv = (timeinfo.tm_hour*60*60*1000 + timeinfo.tm_min*60*1000 + timeinfo.tm_sec*1000) / (24*60*60*1000);
-  double year_adv = timeinfo.tm_yday / 365;
+  double day_adv = (double)(timeinfo.tm_hour*60*60 + timeinfo.tm_min*60 + timeinfo.tm_sec) / (double)(24*60*60);
+  double year_adv = (double)timeinfo.tm_yday / (double) 365;
 
+  printf("hour: %d min: %d sec: %d\n", timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
   printf("day_adv: %f year_adv: %f\n", day_adv, year_adv);
 
-  return 0;
+  double span = LED_MAX_DUTY - LED_MIN_DUTY;
+
+  return LED_MIN_DUTY + sin(year_adv * M_PI) * span / 2 + sin(day_adv * M_PI) * span / 2;
 }
 
 void init_keys(led_config_t config) {
   char power_key[32] = {0};
   sprintf(power_key, "LED_%d_%d_POWER", config.side, config.num);
   if (!hasi(power_key)) {
-    seti(power_key, 0);
+    seti(power_key, 100);
   }
 }
 

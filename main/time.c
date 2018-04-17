@@ -30,6 +30,7 @@
 void time_task(void *param);
 void ntp_task(void *param);
 static void setup(void);
+void print_now();
 
 void init_time() {
   xTaskCreate(time_task, "Time Task", 2048, NULL, 10, NULL);
@@ -48,8 +49,7 @@ void time_task(void *param) {
   while(true) {
     print_now();
 
-    seti("time", (int)now);
-    vTaskDelay(10 * 1000 / portTICK_PERIOD_MS);
+    vTaskDelay(30 * 1000 / portTICK_PERIOD_MS);
   }
 }
 
@@ -62,6 +62,7 @@ void print_now() {
   char buffer[26] = {0};
   strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", &timeinfo);
   printf("%s\n", buffer);
+  seti("time", (int)now);
 }
 
 void ntp_task(void *param) {
