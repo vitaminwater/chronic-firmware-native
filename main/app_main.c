@@ -8,8 +8,12 @@
 */
 #include <stdio.h>
 
-#include "wifi.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
 #include "kv.h"
+#include "wifi.h"
+#include "time.h"
 #include "led.h"
 
 #define VERSION "v0.1"
@@ -24,5 +28,5 @@ void app_main()
     init_led();
 
     fflush(stdout);
-    while(1);
+    while(1) vTaskDelay(10);
 }

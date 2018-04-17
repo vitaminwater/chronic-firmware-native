@@ -21,4 +21,6 @@
 
 void init_wifi();
 
+void wait_connected();
+
 #endif
