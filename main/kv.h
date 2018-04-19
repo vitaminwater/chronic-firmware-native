@@ -33,4 +33,7 @@ void setstr(const char *key, const char *value);
 bool hasstr(const char *key);
 void defaultstr(const char *key, const char *value);
 
+const char **list_keys();
+int get_n_keys();
+
 #endif

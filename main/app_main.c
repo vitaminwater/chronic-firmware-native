@@ -12,6 +12,7 @@
 #include "freertos/task.h"
 
 #include "kv.h"
+#include "ble.h"
 #include "wifi.h"
 #include "time.h"
 #include "led.h"
@@ -26,6 +27,7 @@ void app_main()
     init_wifi();
     init_time();
     init_led();
+    init_ble();
 
     fflush(stdout);
     while(1) vTaskDelay(10);
