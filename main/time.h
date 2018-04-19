@@ -20,5 +20,6 @@
 #define TIME_H_
 
 void init_time();
+time_t get_box_time();
 
 #endif

@@ -15,6 +15,7 @@
  *
  * =====================================================================================
  */
+#include <string.h>
 #include <stdio.h>
 #include <time.h>
 #include <sys/time.h>
@@ -26,6 +27,10 @@
 #include "esp_err.h"
 
 #include "kv.h"
+#include "time.h"
+
+#define min(a, b) (((a) < (b)) ? (a) : (b)) 
+#define max(a, b) (((a) > (b)) ? (a) : (b)) 
 
 #define LEDC_LS_CH0_GPIO       (19)
 #define LEDC_LS_CH0_CHANNEL    LEDC_CHANNEL_0
@@ -45,43 +50,40 @@
 #define LED_MAX_DUTY           (8191)
 #define LEDC_FADE_TIME         (1000)
 
+#define YEAR_ADV_OFFSET (time_t)(10*24*60*60) // solstice is 21st June, that's the 172nd day in year
+
 typedef struct led_config {
   ledc_channel_t  channel;
   int             gpio;
   int             side;
   int             num;
+
+  char           power_key[32];
 } led_config_t;
+
+int get_duty_for_time() {
+  time_t now = get_box_time() - YEAR_ADV_OFFSET;
+
+  struct tm timeinfo;
+  localtime_r(&now, &timeinfo); 
+
+  double day_adv = (double)(timeinfo.tm_hour*60*60 + timeinfo.tm_min*60 + timeinfo.tm_sec) / (double)(24*60*60);
+  double year_adv = (double)(timeinfo.tm_yday) / (double) 365;
+
+  double span = LED_MAX_DUTY - LED_MIN_DUTY;
+  double duty = LED_MIN_DUTY - cos(year_adv * M_PI * 2) * span / 2 - cos(day_adv * M_PI * 2) * span / 2;
+  return min(LED_MAX_DUTY, max(0, duty));
+}
+
+void init_keys(led_config_t config) {
+  defaulti(config.power_key, 100);
+}
 
 void fade_and_wait_led(ledc_channel_config_t ledc_channel, int duty) {
   ledc_set_fade_with_time(ledc_channel.speed_mode,
       ledc_channel.channel, duty, LEDC_FADE_TIME);
   ledc_fade_start(ledc_channel.speed_mode,
       ledc_channel.channel, LEDC_FADE_WAIT_DONE);
-}
-
-int get_duty_for_time() {
-  time_t now;
-  struct tm timeinfo;
-  time(&now);
-  localtime_r(&now, &timeinfo); 
-
-  double day_adv = (double)(timeinfo.tm_hour*60*60 + timeinfo.tm_min*60 + timeinfo.tm_sec) / (double)(24*60*60);
-  double year_adv = (double)timeinfo.tm_yday / (double) 365;
-
-  printf("hour: %d min: %d sec: %d\n", timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
-  printf("day_adv: %f year_adv: %f\n", day_adv, year_adv);
-
-  double span = LED_MAX_DUTY - LED_MIN_DUTY;
-
-  return LED_MIN_DUTY + sin(year_adv * M_PI) * span / 2 + sin(day_adv * M_PI) * span / 2;
-}
-
-void init_keys(led_config_t config) {
-  char power_key[32] = {0};
-  sprintf(power_key, "LED_%d_%d_POWER", config.side, config.num);
-  if (!hasi(power_key)) {
-    seti(power_key, 100);
-  }
 }
 
 void led_task(void *param) {
@@ -96,15 +98,13 @@ void led_task(void *param) {
   };
   ledc_channel_config(&ledc_channel);
 
-  char power_key[32] = {0};
-  sprintf(power_key, "LED_%d_%d_POWER", config.side, config.num);
- 
   while(1) {
-    int power = geti(power_key);
+    int power = geti(config.power_key);
     int duty = get_duty_for_time();
+    printf("power: %d duty: %d led: %d\n", power, duty, (int)((double)duty * (double)power/100));
 
-    printf("power: %d duty: %d\n", power, duty);
-    vTaskDelay(10*1000 / portTICK_PERIOD_MS);
+    fade_and_wait_led(ledc_channel, (int)((double)duty * (double)power/100));
+    vTaskDelay(30*1000 / portTICK_PERIOD_MS);
   }
 }
 
@@ -114,6 +114,8 @@ void start_led_task(ledc_channel_t channel, int gpio, int side, int num) {
   conf->gpio = gpio;
   conf->side = side;
   conf->num = num;
+  memset(conf->power_key, 0, sizeof(conf->power_key));
+  sprintf(conf->power_key, "LED_%d_%d_PWR", side, num);
   xTaskCreate(led_task, "Led task", 2048, conf, 10, NULL);
 }
 
@@ -129,6 +131,12 @@ void init_led() {
   ledc_timer_config(&ledc_timer);
 
   ledc_fade_func_install(0);
+
+  seti("LED_0_0_PWR", 50);
+  seti("LED_1_0_PWR", 50);
+
+  seti("LED_0_1_PWR", 75);
+  seti("LED_1_1_PWR", 75);
 
   start_led_task(LEDC_LS_CH0_CHANNEL, LEDC_LS_CH0_GPIO, 0, 0);
   start_led_task(LEDC_LS_CH1_CHANNEL, LEDC_LS_CH1_GPIO, 0, 1);

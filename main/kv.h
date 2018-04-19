@@ -26,9 +26,11 @@ void init_kv();
 int geti(const char *key);
 void seti(const char *key, int value);
 bool hasi(const char *key);
+void defaulti(const char *key, int value);
 
 void getstr(const char *key, char *value, size_t length);
 void setstr(const char *key, const char *value);
 bool hasstr(const char *key);
+void defaultstr(const char *key, const char *value);
 
 #endif

@@ -73,6 +73,12 @@ void seti(const char *key, int value) {
   nvs_close(kv_handle);
 }
 
+void defaulti(const char *key, int value) {
+  if (!hasi(key)) {
+    seti(key, value);
+  }
+}
+
 bool hasstr(const char *key) {
   nvs_handle kv_handle = open_handle();
   size_t length;
@@ -94,4 +100,10 @@ void setstr(const char *key, const char *value) {
   ESP_ERROR_CHECK(err);
   nvs_commit(kv_handle);
   nvs_close(kv_handle);
+}
+
+void defaultstr(const char *key, const char *value) {
+  if (!hasstr(key)) {
+    setstr(key, value);
+  }
 }
