@@ -19,6 +19,14 @@
 #ifndef BLE_H_
 #define BLE_H_
 
-void init_ble();
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+  void init_ble();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

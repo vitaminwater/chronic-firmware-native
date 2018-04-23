@@ -19,8 +19,16 @@
 #ifndef WIFI_H_
 #define WIFI_H_
 
-void init_wifi();
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void wait_connected();
+  void init_wifi();
+
+  void wait_connected();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

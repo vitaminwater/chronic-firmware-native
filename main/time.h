@@ -19,7 +19,15 @@
 #ifndef TIME_H_
 #define TIME_H_
 
-void init_time();
-time_t get_box_time();
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+  void init_time();
+  time_t get_box_time();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

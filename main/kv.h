@@ -21,19 +21,27 @@
 
 #include <stdbool.h>
 
-void init_kv();
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-int geti(const char *key);
-void seti(const char *key, int value);
-bool hasi(const char *key);
-void defaulti(const char *key, int value);
+  void init_kv();
 
-void getstr(const char *key, char *value, size_t length);
-void setstr(const char *key, const char *value);
-bool hasstr(const char *key);
-void defaultstr(const char *key, const char *value);
+  int geti(const char *key);
+  void seti(const char *key, int value);
+  bool hasi(const char *key);
+  void defaulti(const char *key, int value);
 
-const char **list_keys();
-int get_n_keys();
+  void getstr(const char *key, char *value, size_t length);
+  void setstr(const char *key, const char *value);
+  bool hasstr(const char *key);
+  void defaultstr(const char *key, const char *value);
+
+  const char **list_keys();
+  int get_n_keys();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

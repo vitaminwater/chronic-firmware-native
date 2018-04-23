@@ -220,7 +220,7 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
       break;
     case ESP_GATTS_READ_EVT: {
 			printf("ESP_GATTS_READ_EVT\n");
-			if (param->read.handle == m_handle) {  // If this event is for this descriptor ... process it
+			/*if (param->read.handle == m_handle) {  // If this event is for this descriptor ... process it
 
 				if (m_pCallback != nullptr) {   // If we have a user supplied callback, invoke it now.
 					m_pCallback->onRead(this);    // Invoke the onRead callback method in the callback handler.
@@ -246,7 +246,7 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 						ESP_LOGE(LOG_TAG, "esp_ble_gatts_send_response: rc=%d %s", errRc, GeneralUtils::errorToString(errRc));
 					}
 				} // End of need a response.
-			}
+			}*/
 		}
         break;
     case ESP_GATTS_WRITE_EVT:
