@@ -116,7 +116,6 @@ bool update_keys(nvs_entry_t entry) {
   for (int i = 0; i < n_keys; ++i) {
     if (keys[i] == 0) {
       keys[i] = malloc(strlen(entry.key));
-      printf("%s\n", entry.key);
       strcpy(keys[i], entry.key);
       break;
     }
