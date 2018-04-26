@@ -6,7 +6,7 @@
  *    Description:  
  *
  *        Version:  1.0
- *        Created:  04/19/2018 10:49:23
+ *        Created:  04/24/2018 12:20:15
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -19,14 +19,12 @@
 #ifndef BLE_H_
 #define BLE_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <BLECharacteristic.h>
 
-  void init_ble();
+void init_ble();
+void start_service(std::string service);
+void start_advertising();
 
-#ifdef __cplusplus
-}
-#endif
+BLECharacteristic *add_characteristic(std::string service, std::string uuid, std::string name, std::string value);
 
 #endif

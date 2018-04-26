@@ -11,25 +11,24 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-#include "BLE/BLEClient.h"
-
 #include "kv.h"
-#include "ble.h"
 #include "wifi.h"
 #include "time.h"
 #include "led.h"
+#include "ble.h"
 
 #define VERSION "v0.1"
 
-extern "C" void app_main()
-{
+extern "C" void app_main() {
     printf("Welcome to chronic-o-matic firmware %s\n", VERSION);
 
+    init_ble();
     init_kv();
     init_wifi();
     init_time();
     init_led();
-    init_ble();
+
+    start_advertising();
 
     fflush(stdout);
     while(1) vTaskDelay(10);

@@ -16,6 +16,8 @@
  * =====================================================================================
  */
 #include <stdio.h>
+#include <string.h>
+#include <iostream>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -48,61 +50,72 @@ void init_kv() {
   open_handle();
 }
 
-bool hasi(const char *key) {
+bool hasi(std::string key) {
   int32_t value;
   nvs_handle kv_handle = open_handle();
-  esp_err_t err = nvs_get_i32(kv_handle, key, &value);
+  esp_err_t err = nvs_get_i32(kv_handle, (const char *)key.c_str(), &value);
   nvs_close(kv_handle);
   return err == ESP_OK;
 }
 
-int geti(const char *key) {
+int geti(std::string key) {
   nvs_handle kv_handle = open_handle();
   int32_t value;
-  esp_err_t err = nvs_get_i32(kv_handle, key, &value);
+  esp_err_t err = nvs_get_i32(kv_handle, (const char *)key.c_str(), &value);
   ESP_ERROR_CHECK(err);
   nvs_close(kv_handle);
   return (int)value;
 }
 
-void seti(const char *key, int value) {
+void seti(std::string key, int value) {
   nvs_handle kv_handle = open_handle();
-  esp_err_t err = nvs_set_i32(kv_handle, key, (int32_t)value);
+  esp_err_t err = nvs_set_i32(kv_handle, (const char *)key.c_str(), (int32_t)value);
   ESP_ERROR_CHECK(err);
   nvs_commit(kv_handle);
   nvs_close(kv_handle);
 }
 
-void defaulti(const char *key, int value) {
+void defaulti(std::string key, int value) {
   if (!hasi(key)) {
     seti(key, value);
   }
 }
 
-bool hasstr(const char *key) {
+bool hasstr(std::string key) {
   nvs_handle kv_handle = open_handle();
   size_t length;
-  esp_err_t err = nvs_get_str(kv_handle, key, NULL, &length);
+  esp_err_t err = nvs_get_str(kv_handle, (const char *)key.c_str(), NULL, &length);
   nvs_close(kv_handle);
   return err == ESP_OK;
 }
 
-void getstr(const char *key, char *value, size_t length) {
+std::string getstr(std::string key) {
+  size_t length;
   nvs_handle kv_handle = open_handle();
-  esp_err_t err = nvs_get_str(kv_handle, key, value, &length);
+  esp_err_t err = nvs_get_str(kv_handle, (const char *)key.c_str(), NULL, &length);
   ESP_ERROR_CHECK(err);
+
+  char *value = (char *)malloc(length + 1);
+  memset(value, 0, length + 1);
+  err = nvs_get_str(kv_handle, (const char *)key.c_str(), value, &length);
+  ESP_ERROR_CHECK(err);
+
   nvs_close(kv_handle);
+
+  std::string res = std::string(value);
+  free(value);
+  return res;
 }
 
-void setstr(const char *key, const char *value) {
+void setstr(std::string key, std::string value) {
   nvs_handle kv_handle = open_handle();
-  esp_err_t err = nvs_set_str(kv_handle, key, value);
+  esp_err_t err = nvs_set_str(kv_handle, (const char *)key.c_str(), value.c_str());
   ESP_ERROR_CHECK(err);
   nvs_commit(kv_handle);
   nvs_close(kv_handle);
 }
 
-void defaultstr(const char *key, const char *value) {
+void defaultstr(std::string key, std::string value) {
   if (!hasstr(key)) {
     setstr(key, value);
   }

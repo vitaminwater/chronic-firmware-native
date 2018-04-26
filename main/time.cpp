@@ -17,6 +17,7 @@
  */
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -25,7 +26,18 @@
 
 #include "time.h"
 #include "kv.h"
+#include "ble.h"
 #include "wifi.h"
+
+#define TIME_SERVICE "126528f3-7b17-4fd1-ac63-210c9078958e"
+#define TIME_UUID "40f9ee4f-e19e-4a8a-aa33-b4aae23b6a9b"
+#define START_DATE_MONTH_UUID "829bfbd2-a7e1-4c16-b7e2-4a8fd6261f40"
+#define START_DATE_DAY_UUID "547af7e1-6a8c-4fbc-b568-9c3f194cdc1e"
+#define DURATION_DAYS_UUID "495600fd-947d-4157-a996-20780ad1d81a"
+#define SIMULATION_DURATION_DAYS_UUID "6f01cd48-a405-45e5-99db-0de8b5ca2e7f"
+#define STARTED_AT_UUID "1f450234-f101-4f57-ba39-304b053b95a2"
+
+#define TIME "TIME"
 
 #define START_DATE_MONTH "SIM_S_M"
 #define START_DATE_DAY "SIM_S_D"
@@ -40,11 +52,19 @@ void print_time(time_t t);
 void print_timeinfo(struct tm timeinfo);
 
 void init_time() {
+  defaulti(TIME, 4);
+  bleSynci(TIME_SERVICE, TIME_UUID, TIME);
   defaulti(START_DATE_MONTH, 4);
+  bleSynci(TIME_SERVICE, START_DATE_MONTH_UUID, START_DATE_MONTH);
   defaulti(START_DATE_DAY, 1);
+  bleSynci(TIME_SERVICE, START_DATE_DAY_UUID, START_DATE_DAY);
   defaulti(DURATION_DAYS, 195);
+  bleSynci(TIME_SERVICE, DURATION_DAYS_UUID, DURATION_DAYS);
   defaulti(SIMULATION_DURATION_DAYS, 75);
+  bleSynci(TIME_SERVICE, SIMULATION_DURATION_DAYS_UUID, SIMULATION_DURATION_DAYS);
   defaulti(STARTED_AT, 0);
+  bleSynci(TIME_SERVICE, STARTED_AT_UUID, STARTED_AT);
+  start_service(TIME_SERVICE);
 
   seti(STARTED_AT, (int)1518912000); // 02
   //seti(STARTED_AT, (int)1521331200); // 03
@@ -71,7 +91,8 @@ time_t get_box_time() {
   double duration = (double)((int)now - (int)started_at_t) / (double)(24 * 60 * 60);
   double adv = (double)duration / (double)simulation_duration_days;
 
-  struct tm tm_simulated = {0};
+  struct tm tm_simulated;
+  memset(&tm_simulated, 0, sizeof(tm_simulated));
   tm_simulated.tm_year = tm_started_at.tm_year;
   tm_simulated.tm_mon = start_date_month;
   tm_simulated.tm_mday = start_date_day;
@@ -88,8 +109,8 @@ time_t get_box_time() {
 }
 
 void time_task(void *param) {
-  if (hasi("TIME")) {
-    time_t now = (time_t)geti("TIME");
+  if (hasi(TIME)) {
+    time_t now = (time_t)geti(TIME);
     struct timeval tv = { .tv_sec = now, .tv_usec = 0 };
     settimeofday(&tv, NULL);
     print_time(now);
@@ -102,7 +123,7 @@ void time_task(void *param) {
     time_t now;
     time(&now);
     print_time(now);
-    seti("TIME", (int)now);
+    seti(TIME, (int)now);
 
     printf("Simulated time: ");
     print_time(get_box_time());
@@ -131,8 +152,9 @@ void ntp_task(void *param) {
 }
 
 static void setup(void) {
+  const char *NTP_SERVER = "pool.ntp.org";
   printf("Initializing SNTP\n");
   sntp_setoperatingmode(SNTP_OPMODE_POLL);
-  sntp_setservername(0, "pool.ntp.org");
+  sntp_setservername(0, (char *)NTP_SERVER);
   sntp_init();
 }

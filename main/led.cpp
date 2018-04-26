@@ -19,7 +19,14 @@
 #include <stdio.h>
 #include <time.h>
 #include <sys/time.h>
+
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <math.h>
+
+#ifndef M_PI
+#define M_PI (3.14159265358979323846)
+#endif
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -90,11 +97,12 @@ void led_task(void *param) {
   led_config_t config = *((led_config_t *)param);
   init_keys(config);
   ledc_channel_config_t ledc_channel = {
-    .channel    = config.channel,
-    .duty       = 0,
-    .gpio_num   = config.gpio,
-    .speed_mode = LEDC_LOW_SPEED_MODE,
-    .timer_sel  = LEDC_TIMER_1
+    gpio_num:    config.gpio,
+    speed_mode:  LEDC_LOW_SPEED_MODE,
+    channel:     config.channel,
+    intr_type:   LEDC_INTR_FADE_END,
+    timer_sel:   LEDC_TIMER_1,
+    duty:        0,
   };
   ledc_channel_config(&ledc_channel);
 
@@ -123,10 +131,10 @@ void init_led() {
   printf("Initializing led task\n");
 
   ledc_timer_config_t ledc_timer = {
-    .duty_resolution = LEDC_TIMER_13_BIT,
-    .freq_hz = 120,
-    .speed_mode = LEDC_LOW_SPEED_MODE,
-    .timer_num = LEDC_TIMER_1
+    speed_mode:       LEDC_LOW_SPEED_MODE,
+    { duty_resolution:  LEDC_TIMER_13_BIT, },
+    timer_num:        LEDC_TIMER_1,
+    freq_hz:          120,
   };
   ledc_timer_config(&ledc_timer);
 

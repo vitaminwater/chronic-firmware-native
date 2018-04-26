@@ -16,6 +16,7 @@
  * =====================================================================================
  */
 #include <stdio.h>
+#include <string.h>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -44,8 +45,7 @@ const int CONNECTED_BIT = BIT0;
 static void setup(void);
 static esp_err_t event_handler(void *ctx, system_event_t *event);
 
-void init_wifi()
-{
+void init_wifi() {
   setup();
 }
 
@@ -61,13 +61,10 @@ static void setup(void)
   ESP_ERROR_CHECK( esp_event_loop_init(event_handler, NULL) );
   wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
   ESP_ERROR_CHECK( esp_wifi_init(&cfg) );
-  //ESP_ERROR_CHECK( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
-  wifi_config_t wifi_config = {
-    .sta = {
-      .ssid = DEFAULT_SSID,
-      .password = DEFAULT_PASS,
-    },
-  };
+  wifi_config_t wifi_config;
+  strcpy((char *)wifi_config.sta.ssid, DEFAULT_SSID);
+  strcpy((char *)wifi_config.sta.password, DEFAULT_PASS);
+  wifi_config.sta.bssid_set = false;
   printf("Setting WiFi configuration SSID %s...", wifi_config.sta.ssid);
   ESP_ERROR_CHECK( esp_wifi_set_mode(WIFI_MODE_STA) );
   ESP_ERROR_CHECK( esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );

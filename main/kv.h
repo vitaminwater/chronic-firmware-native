@@ -19,29 +19,21 @@
 #ifndef KV_H_
 #define KV_H_
 
-#include <stdbool.h>
+#include <string>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+void init_kv();
 
-  void init_kv();
+int geti(std::string key);
+void seti(std::string key, int value);
+bool hasi(std::string key);
+void defaulti(std::string key, int value);
 
-  int geti(const char *key);
-  void seti(const char *key, int value);
-  bool hasi(const char *key);
-  void defaulti(const char *key, int value);
+std::string getstr(std::string key);
+void setstr(std::string key, std::string value);
+bool hasstr(std::string key);
+void defaultstr(std::string key, std::string value);
 
-  void getstr(const char *key, char *value, size_t length);
-  void setstr(const char *key, const char *value);
-  bool hasstr(const char *key);
-  void defaultstr(const char *key, const char *value);
-
-  const char **list_keys();
-  int get_n_keys();
-
-#ifdef __cplusplus
-}
-#endif
+void bleSynci(std::string service, std::string uuid, std::string key);
+void bleSyncstr(std::string service, std::string uuid, std::string key);
 
 #endif
