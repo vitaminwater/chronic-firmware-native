@@ -118,7 +118,7 @@ void PasswordCallbacks::onWrite(BLECharacteristic* pCharacteristic) {
   }
 }
 
-void initWifi() {
+void init_wifi() {
   bool hasSSIDPass = getString(WIFI_SSID_PREF).length() && getString(WIFI_PASSWORD_PREF).length();
 
   previous_status = WiFi.status();

@@ -116,7 +116,7 @@ void time_task(void *param) {
     print_time(now);
     xTaskCreate(ntp_task, "NTP task", 2048, NULL, 10, NULL);
   } else {
-    wait_connected();
+    //wait_connected();
     setup();
   }
   while(true) {
@@ -146,7 +146,7 @@ void print_timeinfo(struct tm timeinfo) {
 }
 
 void ntp_task(void *param) {
-  wait_connected();
+  //wait_connected();
   setup();
   vTaskDelete(NULL);
 }

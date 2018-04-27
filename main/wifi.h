@@ -21,7 +21,7 @@
 
 #include <WiFi.h>
 
-void initWifi();
+void init_wifi();
 void WifiTask(void *parameter);
 
 #endif
