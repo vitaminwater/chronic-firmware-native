@@ -6,7 +6,7 @@
  *    Description:  
  *
  *        Version:  1.0
- *        Created:  04/16/2018 19:25:08
+ *        Created:  03/31/2018 09:45:14
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -19,16 +19,9 @@
 #ifndef WIFI_H_
 #define WIFI_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <WiFi.h>
 
-  void init_wifi();
-
-  void wait_connected();
-
-#ifdef __cplusplus
-}
-#endif
+void initWifi();
+void WifiTask(void *parameter);
 
 #endif
