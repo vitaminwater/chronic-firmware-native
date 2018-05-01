@@ -24,13 +24,15 @@
 #include <BLE2901.h>
 #include <BLE2902.h>
 
+#define DEFAULT_NAME "🤖🍁"
+
 BLEServer *pServer;
 std::map<std::string, BLEService*> services;
 
 BLEService *get_or_create_service(std::string service);
 
 void init_ble() {
-  BLEDevice::init("🤖🍁");
+  BLEDevice::init(DEFAULT_NAME);
   pServer = BLEDevice::createServer();
 }
 

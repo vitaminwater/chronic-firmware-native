@@ -30,6 +30,7 @@
 #include "wifi.h"
 
 #define TIME_SERVICE "126528f3-7b17-4fd1-ac63-210c9078958e"
+
 #define TIME_UUID "40f9ee4f-e19e-4a8a-aa33-b4aae23b6a9b"
 #define START_DATE_MONTH_UUID "829bfbd2-a7e1-4c16-b7e2-4a8fd6261f40"
 #define START_DATE_DAY_UUID "547af7e1-6a8c-4fbc-b568-9c3f194cdc1e"
@@ -38,7 +39,6 @@
 #define STARTED_AT_UUID "1f450234-f101-4f57-ba39-304b053b95a2"
 
 #define TIME "TIME"
-
 #define START_DATE_MONTH "SIM_S_M"
 #define START_DATE_DAY "SIM_S_D"
 #define DURATION_DAYS "DUR_D"

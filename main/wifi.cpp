@@ -24,21 +24,21 @@
 #include "ble.h"
 #include "wifi.h"
 
-#define WIFI_CMD_SCAN 1
-#define WIFI_CMD_CONNECT 2
+#define WIFI_CMD_SCAN     1
+#define WIFI_CMD_CONNECT  2
 
 QueueHandle_t cmdQ;
 
-#define WIFI_SSID_PREF "SSID"
-#define WIFI_PASSWORD_PREF "PASSWORD"
+#define WIFI_SSID_PREF      "SSID"
+#define WIFI_PASSWORD_PREF  "PASSWORD"
 
 int previous_status;
-#define WIFI_STATUS_NO_SSID "WIFI_STATUS_NO_SSID"
-#define WIFI_STATUS_SCANNING "WIFI_STATUS_SCANNING"
-#define WIFI_STATUS_CONNECTING "WIFI_STATUS_CONNECTING"
-#define WIFI_STATUS_CONNECTED "WIFI_STATUS_CONNECTED"
-#define WIFI_STATUS_DISCONNECTED "WIFI_STATUS_DISCONNECTED"
-#define WIFI_STATUS_ERROR "WIFI_STATUS_ERROR"
+#define WIFI_STATUS_NO_SSID       "WIFI_STATUS_NO_SSID"
+#define WIFI_STATUS_SCANNING      "WIFI_STATUS_SCANNING"
+#define WIFI_STATUS_CONNECTING    "WIFI_STATUS_CONNECTING"
+#define WIFI_STATUS_CONNECTED     "WIFI_STATUS_CONNECTED"
+#define WIFI_STATUS_DISCONNECTED  "WIFI_STATUS_DISCONNECTED"
+#define WIFI_STATUS_ERROR         "WIFI_STATUS_ERROR"
 
 #define WIFI_SERVICE_UUID                   "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
 #define WIFI_STATUS_CHARACTERISTIC_UUID     "ff05b1e7-669b-4678-8882-467f029f5165"
@@ -119,12 +119,12 @@ void PasswordCallbacks::onWrite(BLECharacteristic* pCharacteristic) {
 }
 
 void init_wifi() {
-  bool hasSSIDPass = getString(WIFI_SSID_PREF).length() && getString(WIFI_PASSWORD_PREF).length();
+  bool hasSSIDPass = getstr(WIFI_SSID_PREF).length() && getstr(WIFI_PASSWORD_PREF).length();
 
   previous_status = WiFi.status();
   if (hasSSIDPass) {
     Serial.println("SSID available");
-    WiFi.begin(getString(WIFI_SSID_PREF).c_str(), getString(WIFI_PASSWORD_PREF).c_str()); 
+    WiFi.begin(getstr(WIFI_SSID_PREF).c_str(), getstr(WIFI_PASSWORD_PREF).c_str()); 
   }
 
   cmdQ = xQueueCreate(10, sizeof(char));
@@ -159,7 +159,7 @@ void init_wifi() {
       WIFI_SSID_CHARACTERISTIC_UUID,
       BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE
       );
-  wifiSSIDCharacteristic->setValue(getString(WIFI_SSID_PREF).c_str());
+  wifiSSIDCharacteristic->setValue(getstr(WIFI_SSID_PREF).c_str());
   wifiSSIDCharacteristic->setCallbacks(new SSIDCallbacks());
 
   wifiPasswordCharacteristic = pService->createCharacteristic(
@@ -210,7 +210,7 @@ void WifiTask(void *parameter) {
           Serial.println("WIFI_CMD_CONNECT");
           wifiStatusCharacteristic->setValue(WIFI_STATUS_CONNECTING);
           wifiStatusCharacteristic->notify();
-          WiFi.begin(getString(WIFI_SSID_PREF).c_str(), getString(WIFI_PASSWORD_PREF).c_str()); 
+          WiFi.begin(getstr(WIFI_SSID_PREF).c_str(), getstr(WIFI_PASSWORD_PREF).c_str()); 
           break;
       }
     }
